@@ -95,6 +95,7 @@ $("compose").addEventListener("submit", async (e) => {
     if (!r.ok) throw new Error(out.error || "Failed");
     render(type);
     say("Posted.", out.url);
+    loadPosts().catch(() => {});
   } catch (err) {
     say(err.message);
   } finally {
@@ -138,10 +139,46 @@ async function intake() {
   else fill("text", { title: meta.title, body: meta.text });
 }
 
+// "Your posts": newest first, two-tap delete (no browser pop-up). Deleting also removes the post's uploaded files.
+async function loadPosts() {
+  const r = await fetch("/api/export");
+  if (!r.ok) return;
+  const posts = await r.json();
+  $("posts").hidden = !posts.length;
+  $("list").replaceChildren(
+    ...posts.map((p) => {
+      const d = p.data;
+      const text = String(d.title || d.caption || d.text || d.body || d.url || d.embed || p.type).slice(0, 80);
+      const row = Object.assign(document.createElement("div"), { className: "row" });
+      const label = document.createElement("span");
+      label.append(text, Object.assign(document.createElement("small"), { textContent: `${p.type} · ${new Date(p.date).toLocaleDateString()}` }));
+      const b = Object.assign(document.createElement("button"), { type: "button", textContent: "Delete" });
+      let timer;
+      b.onclick = async () => {
+        if (!b.classList.contains("sure")) {
+          b.classList.add("sure");
+          b.textContent = "Tap again to delete";
+          timer = setTimeout(() => { b.classList.remove("sure"); b.textContent = "Delete"; }, 4000);
+          return;
+        }
+        clearTimeout(timer);
+        b.disabled = true;
+        b.textContent = "Deleting…";
+        const x = await fetch("/api/post", { method: "DELETE", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: p.id }) });
+        if (x.ok) { row.remove(); $("posts").hidden = !$("list").children.length; }
+        else { b.disabled = false; b.classList.remove("sure"); b.textContent = "Delete"; say((await x.json().catch(() => ({}))).error || "Delete failed"); }
+      };
+      row.append(label, b);
+      return row;
+    })
+  );
+}
+
 async function start() {
   const r = await fetch("/api/me");
   if (!r.ok) return show("login");
   show("compose");
+  loadPosts().catch(() => {});
   intake().catch(() => {});
 }
 

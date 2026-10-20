@@ -153,6 +153,11 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   check("grid: tiles link to posts, photos fill squares, toggle present", count(g, /class="tile/g) >= 6 && g.includes('class="grid"') && g.includes('<nav class="views"') && g.includes('href="/p/') && /class="tile"[^>]*><img/.test(g) && !g.includes("post tap"));
   check("feed has the toggle too, and /feed is the single column", (await (await req("/feed")).text()).includes('<a href="/">Grid</a><a href="/feed" aria-current="page">Feed</a>'));
 }
+{
+  const { blobUrls } = await import("./lib/blobs.js");
+  const mine = "https://abc123.public.blob.vercel-storage.com/kg/a.jpg";
+  check("delete only targets our own Blob files", JSON.stringify(blobUrls({ src: mine, poster: mine.replace("a.jpg", "p.jpg"), cover: "https://evil.com/x.jpg" })) === JSON.stringify([mine, mine.replace("a.jpg", "p.jpg")]) && blobUrls({ src: "/seed/x.jpg" }).length === 0 && blobUrls({ src: "https://public.blob.vercel-storage.com.evil.com/x" }).length === 0 && blobUrls({ embed: "https://youtu.be/x" }).length === 0);
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

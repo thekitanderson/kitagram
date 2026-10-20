@@ -1,6 +1,7 @@
-import { addPost, deletePost } from "../lib/db.js";
+import { addPost, deletePost, getPost } from "../lib/db.js";
 import { isAuthed } from "../lib/auth.js";
 import { json, readJson } from "../lib/http.js";
+import { blobUrls, deleteFiles } from "../lib/blobs.js";
 import { embedOf } from "../lib/embed.js";
 
 // Field rules per type: [kind, max length, required]
@@ -38,7 +39,16 @@ async function handler(request) {
   if (!body) return json({ error: "Bad request" }, 400);
 
   if (request.method === "DELETE") {
-    return (await deletePost(body.id)) ? json({ ok: true }) : json({ error: "Not found" }, 404);
+    const p = await getPost(body.id);
+    if (!p) return json({ error: "Not found" }, 404);
+    const files = blobUrls(p.data);
+    try {
+      await deleteFiles(files); // files first: if this fails the post stays, so nothing is orphaned
+    } catch (e) {
+      return json({ error: "Couldn't remove the file, post kept: " + e.message }, 502);
+    }
+    await deletePost(body.id);
+    return json({ ok: true, files: files.length });
   }
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
 

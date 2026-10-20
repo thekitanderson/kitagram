@@ -22,6 +22,13 @@
   #types button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
   .admin label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
   .admin p { margin: 0; min-height: 1.5em; }
+  #posts { margin-top: 32px; display: flex; flex-direction: column; }
+  #posts h2 { font-size: 14px; font-weight: 500; color: var(--muted); margin: 0 0 8px; }
+  #posts .row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  #posts .row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #posts .row small { color: var(--muted); display: block; font-size: 12px; }
+  #posts button { width: auto; padding: 8px 12px; cursor: pointer; }
+  #posts button.sure { background: var(--text); color: var(--bg); border-color: var(--text); }
   .foot { margin-top: 24px !important; font-size: 14px; color: var(--muted); }
 </style>
 </head>
@@ -38,6 +45,7 @@
     <p id="status" role="status"></p>
     <button id="go">Post</button>
   </form>
+  <section id="posts" hidden><h2>Your posts</h2><div id="list"></div></section>
   <p class="foot"><a href="/">View site</a> · <a href="/api/export" download>Backup</a></p>
 </main>
 <script type="module" src="/admin/app.js"></script>
