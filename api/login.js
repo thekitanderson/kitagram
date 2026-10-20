@@ -1,7 +1,7 @@
 import { checkPassword, sessionCookie } from "../lib/auth.js";
 import { json, readJson } from "../lib/http.js";
 
-export default async function handler(request) {
+async function handler(request) {
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
   const body = await readJson(request);
   if (!checkPassword(body?.password)) {
@@ -10,3 +10,5 @@ export default async function handler(request) {
   }
   return json({ ok: true }, 200, { "set-cookie": sessionCookie() });
 }
+
+export default { fetch: handler };

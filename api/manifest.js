@@ -1,7 +1,7 @@
 import config from "../site.config.js";
 
 // The composer's install manifest. share_target puts the app in Android's share menu.
-export default function handler() {
+function handler() {
   const icon = (n) => ({ src: `/admin/icon-${n}.png`, sizes: `${n}x${n}`, type: "image/png", purpose: "any maskable" });
   return Response.json(
     {
@@ -23,3 +23,5 @@ export default function handler() {
     { headers: { "content-type": "application/manifest+json" } }
   );
 }
+
+export default { fetch: handler };

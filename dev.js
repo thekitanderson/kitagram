@@ -43,7 +43,7 @@ async function handle(req, res) {
     if (!existsSync(path)) { res.writeHead(404).end("Not found"); return; }
     const mod = await import(pathToFileURL(path));
     const body = req.method === "GET" || req.method === "HEAD" ? undefined : Readable.toWeb(req);
-    const out = await mod.default(new Request(url, { method: req.method, headers: req.headers, body, duplex: "half" }));
+    const out = await mod.default.fetch(new Request(url, { method: req.method, headers: req.headers, body, duplex: "half" }));
     const headers = {};
     out.headers.forEach((v, k) => { if (k !== "set-cookie") headers[k] = v; });
     const cookies = out.headers.getSetCookie();

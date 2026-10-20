@@ -10,7 +10,7 @@ const TYPES = [
   "video/mp4", "video/webm", "video/quicktime",
 ];
 
-export default async function handler(request) {
+async function handler(request) {
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
   try {
     return json(
@@ -27,3 +27,5 @@ export default async function handler(request) {
     return json({ error: e.message }, 400);
   }
 }
+
+export default { fetch: handler };

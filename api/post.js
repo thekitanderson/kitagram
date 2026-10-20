@@ -30,7 +30,7 @@ function clean(type, d) {
   return out;
 }
 
-export default async function handler(request) {
+async function handler(request) {
   if (!isAuthed(request)) return json({ error: "Not signed in" }, 401);
   const body = await readJson(request);
   if (!body) return json({ error: "Bad request" }, 400);
@@ -45,3 +45,5 @@ export default async function handler(request) {
   const id = await addPost(body.type, data);
   return json({ id, url: `/p/${id}` }, 201);
 }
+
+export default { fetch: handler };
