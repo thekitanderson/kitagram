@@ -1,0 +1,20 @@
+{
+  "name": "kitagram",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev.js",
+    "seed": "node dev/seed.js",
+    "test": "node test.js",
+    "vendor": "esbuild dev/blob-entry.js --bundle --format=esm --minify --outfile=public/admin/blob-client.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.2",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
+    "esbuild": "^0.28.2"
+  }
+}

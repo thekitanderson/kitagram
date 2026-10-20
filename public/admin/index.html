@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<title>Compose</title>
+<link rel="manifest" href="/admin/manifest.webmanifest">
+<link rel="stylesheet" href="/theme.css">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  [hidden] { display: none !important; }
+  .admin { padding: 16px; max-width: var(--max); margin: 0 auto; }
+  .admin form { display: flex; flex-direction: column; gap: 12px; }
+  .admin input, .admin textarea, .admin button { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 0; padding: 12px; width: 100%; }
+  .admin textarea { min-height: 7em; resize: vertical; }
+  .admin #go, .admin #login button { background: var(--text); color: var(--bg); border-color: var(--text); cursor: pointer; }
+  .admin button:disabled { opacity: .5; }
+  #types { display: flex; flex-wrap: wrap; gap: 8px; }
+  #types button { width: auto; padding: 8px 12px; cursor: pointer; }
+  #types button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .admin label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+  .admin p { margin: 0; min-height: 1.5em; }
+  .foot { margin-top: 24px !important; font-size: 14px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main class="admin">
+  <form id="login" hidden>
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Password" required>
+    <button>Sign in</button>
+    <p id="lerr" role="alert"></p>
+  </form>
+  <form id="compose" hidden>
+    <div id="types"></div>
+    <div id="fields" style="display: contents"></div>
+    <p id="status" role="status"></p>
+    <button id="go">Post</button>
+  </form>
+  <p class="foot"><a href="/">View site</a> · <a href="/api/export" download>Backup</a></p>
+</main>
+<script type="module" src="/admin/app.js"></script>
+</body>
+</html>

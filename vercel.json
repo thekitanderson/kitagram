@@ -1,0 +1,19 @@
+{
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/", "destination": "/api/feed" },
+    { "source": "/p/:id", "destination": "/api/p?id=:id" },
+    { "source": "/theme.css", "destination": "/api/theme" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/manifest.webmanifest", "destination": "/api/manifest" }
+  ],
+  "headers": [
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex" },
+        { "key": "Cache-Control", "value": "no-cache" }
+      ]
+    }
+  ]
+}
