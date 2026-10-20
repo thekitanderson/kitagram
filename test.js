@@ -73,6 +73,9 @@ for (const tag of ["<blockquote", "link-card", "<audio", "<video", 'class="squar
 r = await req(`/p/${made[0]}`);
 t = await r.text();
 check("permalink works", r.status === 200 && t.includes("Hello") && t.includes("← Back"));
+check("permalink has preview tags", t.includes('property="og:title"') && t.includes(`og:url" content="https://kitagram.app/p/${made[0]}"`) && t.includes('rel="canonical"'));
+check("permalink has text + copy share", t.includes('href="sms:?body=https%3A%2F%2Fkitagram.app%2Fp%2F') && t.includes('id="copy"'));
+check("feed stays script-free", !(await (await req("/")).text()).includes("<script"));
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

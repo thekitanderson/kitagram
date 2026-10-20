@@ -197,3 +197,21 @@ main,
   width: 100%;
   margin-top: 8px;
 }
+
+.share {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0 16px 16px;
+  font-size: 14px;
+}
+
+.share a,
+.share button {
+  font: inherit;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
