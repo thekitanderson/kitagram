@@ -6,11 +6,11 @@ const $ = (id) => document.getElementById(id);
 // [field name, label, options]  req = required, area = textarea, file = accepted types
 const FIELDS = {
   text: [["title", "Title (optional)"], ["body", "Write something", { area: 1, req: 1 }]],
-  photo: [["file", "Photo", { file: "image/*", req: 1 }], ["caption", "Caption", { area: 1 }], ["alt", "Alt text (for screen readers)"]],
+  photo: [["file", "Photo", { file: "image/*", req: 1 }], ["filename", "File name (e.g. kit-anderson-riding-tiger)"], ["caption", "Caption", { area: 1 }], ["alt", "Alt text (for screen readers)"]],
   quote: [["text", "Quote", { area: 1, req: 1 }], ["source", "Source"]],
   link: [["url", "Link", { type: "url", req: 1 }], ["title", "Title (defaults to the site name)"], ["note", "Note", { area: 1 }]],
-  audio: [["file", "Audio", { file: "audio/*", req: 1 }], ["title", "Title (defaults to the file name)"], ["artist", "Artist"]],
-  video: [["file", "Video", { file: "video/*", req: 1 }], ["caption", "Caption", { area: 1 }]],
+  audio: [["file", "Audio", { file: "audio/*", req: 1 }], ["filename", "File name (optional)"], ["title", "Title (defaults to the file name)"], ["artist", "Artist"]],
+  video: [["file", "Video", { file: "video/*", req: 1 }], ["filename", "File name (optional)"], ["caption", "Caption", { area: 1 }]],
 };
 
 let type = "photo";
@@ -57,7 +57,9 @@ $("compose").addEventListener("submit", async (e) => {
   e.preventDefault();
   const v = Object.fromEntries(new FormData(e.currentTarget));
   const file = v.file;
+  const named = String(v.filename || "").trim().toLowerCase().replace(/\.[a-z0-9]+$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   delete v.file;
+  delete v.filename;
   $("go").disabled = true;
   say("Posting…");
   try {
@@ -65,7 +67,9 @@ $("compose").addEventListener("submit", async (e) => {
     if (file) {
       const f = type === "photo" ? await shrink(file) : file;
       if (type === "audio" && !v.title) v.title = f.name.replace(/\.[^.]+$/, "");
-      const blob = await upload(`kg/${f.name}`, f, {
+      const ext = (f.name.match(/\.[^.]+$/) || [""])[0].toLowerCase();
+      const blob = await upload(`kg/${named ? named + ext : f.name}`, f, {
+        clientPayload: named ? "clean" : "",
         access: "public",
         handleUploadUrl: "/api/upload",
         multipart: f.size > 50e6,

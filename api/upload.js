@@ -17,9 +17,9 @@ async function handler(request) {
       await handleUpload({
         body: await request.json(),
         request,
-        onBeforeGenerateToken: async () => {
+        onBeforeGenerateToken: async (_path, clientPayload) => {
           if (!isAuthed(request)) throw new Error("Not signed in");
-          return { allowedContentTypes: TYPES, maximumSizeInBytes: 500 * 1024 * 1024, addRandomSuffix: true };
+          return { allowedContentTypes: TYPES, maximumSizeInBytes: 500 * 1024 * 1024, addRandomSuffix: clientPayload !== "clean" };
         },
       })
     );
