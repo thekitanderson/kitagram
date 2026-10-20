@@ -14,6 +14,7 @@ const FIELDS = {
 };
 
 let type = "photo";
+let editing = null; // the post being edited, or null
 
 const say = (text, href) => {
   const s = $("status");
@@ -27,10 +28,13 @@ function show(which) {
   if (which === "compose") render(type);
 }
 
-function render(t) {
+function render(t, edit = null) {
   type = t;
+  editing = edit;
+  $("go").textContent = edit ? "Save" : "Post";
+  $("editbar").hidden = !edit;
   $("types").replaceChildren(
-    ...Object.keys(FIELDS).map((k) => {
+    ...Object.keys(FIELDS).filter((k) => !edit || k === t).map((k) => {
       const b = Object.assign(document.createElement("button"), { type: "button", textContent: k });
       b.setAttribute("aria-pressed", String(k === t));
       b.onclick = () => render(k);
@@ -38,7 +42,7 @@ function render(t) {
     })
   );
   $("fields").replaceChildren(
-    ...FIELDS[t].map(([name, text, o = {}]) => {
+    ...FIELDS[t].filter(([name, , o = {}]) => !edit || (!o.file && name !== "filename")).map(([name, text, o = {}]) => {
       const label = document.createElement("label");
       label.append(text);
       const el = document.createElement(o.area ? "textarea" : "input");
@@ -46,12 +50,15 @@ function render(t) {
       if (o.file) Object.assign(el, { type: "file", accept: o.file });
       else if (!o.area) el.type = o.type || "text";
       el.required = Boolean(o.req);
+      if (edit && edit.data[name] != null) el.value = edit.data[name];
       label.append(el);
       return label;
     })
   );
   say("");
 }
+
+$("cancel").addEventListener("click", () => render("photo"));
 
 $("compose").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -61,6 +68,24 @@ $("compose").addEventListener("submit", async (e) => {
   delete v.file;
   delete v.filename;
   $("go").disabled = true;
+  if (editing) {
+    say("Saving…");
+    try {
+      if (type === "link" && !v.title) v.title = new URL(v.url).hostname;
+      const r = await fetch("/api/post", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ id: editing.id, data: v }) });
+      if (r.status === 401) return show("login");
+      const out = await r.json();
+      if (!r.ok) throw new Error(out.error || "Failed");
+      render(type);
+      say("Saved.", out.url);
+      loadPosts().catch(() => {});
+    } catch (err) {
+      say(err.message);
+    } finally {
+      $("go").disabled = false;
+    }
+    return;
+  }
   say("Posting…");
   try {
     if (type === "link" && !v.title) v.title = new URL(v.url).hostname;
@@ -168,7 +193,9 @@ async function loadPosts() {
         if (x.ok) { row.remove(); $("posts").hidden = !$("list").children.length; }
         else { b.disabled = false; b.classList.remove("sure"); b.textContent = "Delete"; say((await x.json().catch(() => ({}))).error || "Delete failed"); }
       };
-      row.append(label, b);
+      const ed = Object.assign(document.createElement("button"), { type: "button", textContent: "Edit" });
+      ed.onclick = () => { render(p.type, p); scrollTo({ top: 0 }); };
+      row.append(label, ed, b);
       return row;
     })
   );

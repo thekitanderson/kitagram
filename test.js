@@ -163,6 +163,19 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   check("missing post: 404 status, noindex, sends you home to the grid", nf.status === 404 && (await nf.text()).includes('http-equiv="refresh" content="3;url=/"'));
   check("404.html sends you home too", (await import("node:fs")).readFileSync("public/404.html", "utf8").includes('http-equiv="refresh" content="3;url=/"'));
 }
+{
+  const mk = await (await post(cookie, "text", { title: "Before", body: "Original" })).json();
+  const before = await (await req(`/p/${mk.id}`)).text();
+  const date0 = before.match(/datetime="([^"]+)"/)[1];
+  const patch = (id, data) => req("/api/post", { method: "PATCH", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id, data }) });
+  check("edit refused without login", (await req("/api/post", { method: "PATCH", headers: J, body: JSON.stringify({ id: mk.id, data: { body: "x" } }) })).status === 401);
+  check("edit saves new text", (await patch(mk.id, { title: "After", body: "Changed" })).status === 200);
+  const after = await (await req(`/p/${mk.id}`)).text();
+  check("edited post shows new text, same date, and never says edited", after.includes("Changed") && !after.includes("Original") && after.includes(`datetime="${date0}"`) && !/edited|updated/i.test(after.replace(/<style>.*?<\/style>/gs, "").replace(/<script.*?<\/script>/gs, "").replace(/<meta[^>]*>/g, "")));
+  check("edit rejects invalid, keeps old", (await patch(mk.id, { body: "" })).status === 400 && (await (await req(`/p/${mk.id}`)).text()).includes("Changed"));
+  check("edit can clear an optional field", (await patch(mk.id, { title: "" })).status === 200 && !(await (await req(`/p/${mk.id}`)).text()).includes("After"));
+  await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: mk.id }) });
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

@@ -1,4 +1,4 @@
-import { addPost, deletePost, getPost } from "../lib/db.js";
+import { addPost, deletePost, getPost, updatePost } from "../lib/db.js";
 import { isAuthed } from "../lib/auth.js";
 import { json, readJson } from "../lib/http.js";
 import { blobUrls, deleteFiles } from "../lib/blobs.js";
@@ -49,6 +49,14 @@ async function handler(request) {
     }
     await deletePost(body.id);
     return json({ ok: true, files: files.length });
+  }
+  if (request.method === "PATCH") {
+    const p = await getPost(body.id);
+    if (!p) return json({ error: "Not found" }, 404);
+    const data = clean(p.type, { ...p.data, ...body.data }); // unsent fields (files) stay as they are; "" clears an optional field
+    if (!data) return json({ error: "Invalid post" }, 400);
+    await updatePost(body.id, data);
+    return json({ ok: true, url: `/p/${p.id}` });
   }
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
