@@ -23,7 +23,7 @@ let r = await req("/");
 let t = await r.text();
 check("empty feed renders", r.status === 200 && count(t, /<article/g) === 0);
 check("header has logo for light and dark", t.includes('src="/logo-light.png"') && t.includes('srcset="/logo-dark.png"'));
-check("front page has site preview tags", t.includes('property="og:title" content="Kitagram"') && t.includes('property="og:description" content="FUCK THE ALGORITHM.') && t.includes('property="og:image" content="https://www.kitagram.app/og.png?v=2"') && t.includes('og:url" content="https://www.kitagram.app/"') && t.includes('name="twitter:card" content="summary_large_image"'));
+check("front page has site preview tags", t.includes('property="og:title" content="Kitagram"') && t.includes('property="og:description" content="FUCK THE ALGORITHM.') && t.includes('property="og:image" content="https://www.kitagram.app/og.png?v=3"') && t.includes('og:url" content="https://www.kitagram.app/"') && t.includes('name="twitter:card" content="summary_large_image"'));
 check("header shows name and subtitle", t.includes('class="wordmark">Kitagram<') && t.includes('lengthAdjust="spacingAndGlyphs">FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.<'));
 
 // --- auth ---
@@ -83,7 +83,7 @@ check("permalink has preview tags", t.includes('property="og:title"') && t.inclu
   const mk = (type, data) => og({ id: "9", type, date: "2026-10-20T19:00:00Z", data });
   const val = (h, k) => h.match(new RegExp(`(?:property|name)="${k}" content="([^"]*)"`))?.[1];
   const text = mk("text", { body: "A long thought about why the feed is dead. ".repeat(10) });
-  check("text post preview: image is the site card, title cut, description differs", val(text, "og:image") === "https://www.kitagram.app/og.png?v=2" && val(text, "og:title").length <= 70 && val(text, "og:title").endsWith("…") && val(text, "og:description") !== val(text, "og:title"));
+  check("text post preview: image is the site card, title cut, description differs", val(text, "og:image") === "https://www.kitagram.app/og.png?v=3" && val(text, "og:title").length <= 70 && val(text, "og:title").endsWith("…") && val(text, "og:description") !== val(text, "og:title"));
   const photo = mk("photo", { src: "https://x.test/a.jpg", caption: "Dropping in on friends." });
   check("photo preview: its own picture, caption title, description not a repeat", val(photo, "og:image") === "https://x.test/a.jpg" && val(photo, "og:title") === "Dropping in on friends." && val(photo, "og:description") === "Kitagram · Oct 20, 2026" && val(photo, "twitter:card") === "summary_large_image");
   check("quote + link + audio previews", val(mk("quote", { text: "Hi", source: "Me" }), "og:title") === "“Hi”" && val(mk("link", { title: "T", url: "https://a.com/x" }), "og:description") === "a.com" && val(mk("audio", { title: "S", artist: "A", src: "/a.mp3" }), "og:description") === "A · audio");

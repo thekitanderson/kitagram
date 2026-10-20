@@ -99,7 +99,7 @@ main,
   padding: 24px 16px 40px;
   color: var(--muted);
   font-size: 14px;
-  text-align: center;
+  text-align: left;
 }
 
 /* Feed: flat posts, hairline dividers */
@@ -151,7 +151,7 @@ main,
 }
 
 .end {
-  text-align: center;
+  text-align: left;
   color: var(--muted);
   font-size: 14px;
   margin: 0;
