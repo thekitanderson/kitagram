@@ -10,9 +10,9 @@ async function handler(request) {
   const no = aiBlocked(request);
   if (no) return no;
   const q = new URL(request.url).searchParams;
-  const grid = q.get("view") === "grid";
+  const grid = q.get("view") !== "feed"; // grid is the front page; /feed is the single column
   const per = grid ? GRID : PAGE;
-  const base = grid ? "/grid" : "/";
+  const base = grid ? "/" : "/feed";
   const n = Math.max(1, parseInt(q.get("page"), 10) || 1);
   const { posts, more } = await listPosts(per, (n - 1) * per);
   const nav = [n > 1 && `<a href="${base}${n > 2 ? `?page=${n - 1}` : ""}">← Newer</a>`, more && `<a href="${base}?page=${n + 1}">Older →</a>`].filter(Boolean).join(" &nbsp; ");

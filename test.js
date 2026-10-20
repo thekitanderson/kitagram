@@ -69,7 +69,7 @@ for (const [name, type, data] of [
 ]) check(name, (await post(cookie, type, data)).status === 400);
 
 // --- public pages ---
-t = await (await req("/")).text();
+t = await (await req("/feed")).text();
 check("feed shows all six, no script tags", count(t, /<article/g) === 6 && !t.replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").replace(/<script>if\(navigator\.share\).*?<\/script>/g, "").includes("<script"));
 check("feed is newest first", [...t.matchAll(/href="\/p\/(\d+)"/g)].map((m) => m[1]).join() === [...made].reverse().join());
 check("post text is escaped", t.includes("&lt;script&gt;") && !t.includes("<script>alert"));
@@ -90,11 +90,11 @@ check("permalink has preview tags", t.includes('property="og:title"') && t.inclu
   check("preview tags escape quotes", !mk("text", { body: 'a "quoted" <b>' }).includes('<b>'));
 }
 check("permalink has text + copy share", t.includes('href="sms:?body=https%3A%2F%2Fwww.kitagram.app%2Fp%2F') && t.includes('id="copy"') && t.includes('class="sh"') && t.includes("navigator.share"));
-check("feed posts are tappable, permalink is not", (await (await req("/")).text()).includes('class="post tap"') && !(await (await req(`/p/${made[0]}`)).text()).includes("post tap"));
-check("feed stays script-free", !(await (await req("/")).text()).replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").replace(/<script>if\(navigator\.share\).*?<\/script>/g, "").includes("<script"));
+check("feed posts are tappable, permalink is not", (await (await req("/feed")).text()).includes('class="post tap"') && !(await (await req(`/p/${made[0]}`)).text()).includes("post tap"));
+check("feed stays script-free", !(await (await req("/feed")).text()).replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").replace(/<script>if\(navigator\.share\).*?<\/script>/g, "").includes("<script"));
 const site = await (await req("/manifest.webmanifest")).json();
 check("public manifest is a plain home-screen app", site.start_url === "/" && site.scope === "/" && !site.share_target);
-check("feed links to manifest and /add", (await (await req("/")).text()).includes('rel="manifest" href="/manifest.webmanifest"') && (await (await req("/")).text()).includes('href="/add"'));
+check("feed links to manifest and /add", (await (await req("/feed")).text()).includes('rel="manifest" href="/manifest.webmanifest"') && (await (await req("/feed")).text()).includes('href="/add"'));
 r = await req("/add");
 check("/add explains install", r.status === 200 && (await r.text()).includes("Add to Home screen") && (await req("/add").then((x) => x.text())).includes("appinstalled"));
 const robots = await (await req("/robots.txt")).text();
@@ -128,7 +128,7 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   check("front page: title has the author, description says what the site is, WebSite data", front.includes("<title>Kitagram · Kit Anderson</title>") && front.includes('name="description" content="Kitagram by Kit Anderson. FUCK') && ld(front)["@type"] === "WebSite" && ld(front).author.name === "Kit Anderson");
   const b = ld(perma);
   check("permalink: own description (not the slogan), BlogPosting data with author + date", !perma.includes('name="description" content="Kitagram by Kit Anderson. FUCK') && b["@type"] === "BlogPosting" && b.author.name === "Kit Anderson" && /^\d{4}-/.test(b.datePublished) && b.url === `https://www.kitagram.app/p/${made[0]}`);
-  check("photo alt falls back to the caption", /<img class="square"[^>]*alt="[^"]+"/.test(front));
+  check("photo alt falls back to the caption", /<img class="square"[^>]*alt="[^"]+"/.test(await (await req("/feed")).text()));
   check("404 pages are noindex", (await (await req("/p/99999")).text()).includes('name="robots" content="noindex"'));
 }
 {
@@ -149,9 +149,9 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: okj.id ?? okj.url?.split("/").pop() }) });
 }
 {
-  const g = await (await req("/grid")).text();
+  const g = await (await req("/")).text();
   check("grid: tiles link to posts, photos fill squares, toggle present", count(g, /class="tile/g) >= 6 && g.includes('class="grid"') && g.includes('<nav class="views"') && g.includes('href="/p/') && /class="tile"[^>]*><img/.test(g) && !g.includes("post tap"));
-  check("feed has the toggle too", (await (await req("/")).text()).includes('<a href="/grid">Grid</a>'));
+  check("feed has the toggle too, and /feed is the single column", (await (await req("/feed")).text()).includes('<a href="/">Grid</a><a href="/feed" aria-current="page">Feed</a>'));
 }
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
@@ -160,9 +160,9 @@ check("manifest has share target for files", manifest.share_target?.params?.file
 
 // --- pagination (20 per page) ---
 for (let i = 0; i < 20; i++) await post(cookie, "text", { body: `filler ${i}` });
-t = await (await req("/")).text();
+t = await (await req("/feed")).text();
 check("page 1 has 20 posts and an Older link", count(t, /<article/g) === 20 && t.includes("Older →") && !t.includes("Newer"));
-t = await (await req("/?page=2")).text();
+t = await (await req("/feed?page=2")).text();
 check("page 2 has the other 6 and a Newer link", count(t, /<article/g) === 6 && t.includes("← Newer") && !t.includes("Older"));
 
 // --- backup, delete, upload auth ---
