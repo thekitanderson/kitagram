@@ -5,7 +5,7 @@
     { "source": "/p/:id", "destination": "/api/p?id=:id" },
     { "source": "/robots.txt", "destination": "/api/robots" },
     { "source": "/t/:id", "destination": "/api/t?id=:id" },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/sitemap.xml", "destination": "/api/robots?sitemap=1" },
     { "source": "/add", "destination": "/api/add" },
     { "source": "/manifest.webmanifest", "destination": "/api/manifest?site=1" },
     { "source": "/theme.css", "destination": "/api/theme" },
