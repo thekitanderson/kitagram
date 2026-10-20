@@ -177,6 +177,14 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: mk.id }) });
 }
 check("front page has exactly one h1 (the wordmark)", count(await (await req("/")).text(), /<h1/g) === 1 && count(await (await req("/feed")).text(), /<h1/g) === 1);
+{
+  const h1s = async (id) => count(await (await req(`/p/${id}`)).text(), /<h1/g);
+  const withTitle = await (await post(cookie, "text", { title: "Has title", body: "b" })).json();
+  const noTitle = await (await post(cookie, "text", { body: "no title here" })).json();
+  const photoCap = await (await post(cookie, "photo", { src: "/seed/a.jpg", caption: "Cap" })).json();
+  check("permalink: title/caption is the one h1; none when there is no title", (await h1s(withTitle.id)) === 1 && (await h1s(photoCap.id)) === 1 && (await h1s(noTitle.id)) === 0);
+  for (const x of [withTitle, noTitle, photoCap]) await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: x.id }) });
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();
