@@ -2,6 +2,8 @@
 export default {
   name: "Kitagram",
   tagline: "FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.",
+  // The line under the name in the page header.
+  subtitle: "FUCK THE ALGORITHM.",
   // Search-result description for the front page (the tagline is a slogan; this says what the site is).
   description: "Kitagram by Kit Anderson. FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. NO SPONSORS. NO ADS. KITAGRAM IS JUST MY SHIT AND THAT'S IT.",
   // Who made it. Goes into page titles and structured data so search engines tie the posts to the name. sameAs = your other official profiles.
