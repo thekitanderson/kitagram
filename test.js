@@ -124,9 +124,9 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   const front = await (await req("/")).text();
   const perma = await (await req(`/p/${made[0]}`)).text();
   const ld = (h) => JSON.parse(h.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
-  check("front page: title has the author, description says what the site is, WebSite data", front.includes("<title>Kitagram · Kit Anderson</title>") && front.includes('name="description" content="Photos, writing') && ld(front)["@type"] === "WebSite" && ld(front).author.name === "Kit Anderson");
+  check("front page: title has the author, description says what the site is, WebSite data", front.includes("<title>Kitagram · Kit Anderson</title>") && front.includes('name="description" content="Kitagram by Kit Anderson. FUCK') && ld(front)["@type"] === "WebSite" && ld(front).author.name === "Kit Anderson");
   const b = ld(perma);
-  check("permalink: own description (not the slogan), BlogPosting data with author + date", !perma.includes('name="description" content="Photos, writing') && b["@type"] === "BlogPosting" && b.author.name === "Kit Anderson" && /^\d{4}-/.test(b.datePublished) && b.url === `https://www.kitagram.app/p/${made[0]}`);
+  check("permalink: own description (not the slogan), BlogPosting data with author + date", !perma.includes('name="description" content="Kitagram by Kit Anderson. FUCK') && b["@type"] === "BlogPosting" && b.author.name === "Kit Anderson" && /^\d{4}-/.test(b.datePublished) && b.url === `https://www.kitagram.app/p/${made[0]}`);
   check("photo alt falls back to the caption", /<img class="square"[^>]*alt="[^"]+"/.test(front));
   check("404 pages are noindex", (await (await req("/p/99999")).text()).includes('name="robots" content="noindex"'));
 }
