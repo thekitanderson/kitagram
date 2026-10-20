@@ -1,7 +1,7 @@
 // Everything brand-specific lives here. Rebrand = edit this file + swap /public assets.
 export default {
   name: "Kitagram",
-  tagline: "",
+  tagline: "FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.",
   // Canonical domain: one value. Used for share links and previews.
   domain: "kitagram.app",
 
@@ -11,8 +11,9 @@ export default {
   // App icon background (splash screen). Icons live in public/admin/icon-192.png and icon-512.png.
   iconBg: "#000000",
 
-  // Logo slot: drop a file in /public and set the path. null = text wordmark.
+  // Logo: files in /public. logo = for light backgrounds; logoDark (optional) = for dark mode. null = text wordmark.
   logo: null,
+  logoDark: null,
 
   theme: {
     // Light is the default. Dark applies automatically when the visitor's device is set to dark.

@@ -46,6 +46,14 @@ main,
   text-decoration: none;
 }
 
+.tagline {
+  margin: 2px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-wrap: balance;
+  color: var(--muted);
+}
+
 .wordmark {
   font-size: 18px;
   font-weight: 500;

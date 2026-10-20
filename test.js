@@ -21,6 +21,7 @@ const count = (s, re) => (s.match(re) || []).length;
 let r = await req("/");
 let t = await r.text();
 check("empty feed renders", r.status === 200 && count(t, /<article/g) === 0);
+check("header shows name and subtitle", t.includes('class="wordmark">Kitagram<') && t.includes('class="tagline">FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.<'));
 
 // --- auth ---
 r = await post(null, "text", { body: "x" });
