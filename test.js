@@ -176,6 +176,7 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   check("edit can clear an optional field", (await patch(mk.id, { title: "" })).status === 200 && !(await (await req(`/p/${mk.id}`)).text()).includes("After"));
   await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: mk.id }) });
 }
+check("front page has exactly one h1 (the wordmark)", count(await (await req("/")).text(), /<h1/g) === 1 && count(await (await req("/feed")).text(), /<h1/g) === 1);
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

@@ -17,7 +17,7 @@ async function handler(request) {
   const { posts, more } = await listPosts(per, (n - 1) * per);
   const nav = [n > 1 && `<a href="${base}${n > 2 ? `?page=${n - 1}` : ""}">← Newer</a>`, more && `<a href="${base}?page=${n + 1}">Older →</a>`].filter(Boolean).join(" &nbsp; ");
   const list = grid ? `<div class="grid">${posts.map(tile).join("")}</div>` : posts.map((p) => post(p, true)).join("\n");
-  return html(page(`${config.name} · ${config.author.name}`, views(grid ? "grid" : "feed") + list + (nav ? `<p class="end">${nav}</p>` : ""), siteOg(n > 1 ? `${base}?page=${n}` : base)));
+  return html(page(`${config.name} · ${config.author.name}`, views(grid ? "grid" : "feed") + list + (nav ? `<p class="end">${nav}</p>` : ""), siteOg(n > 1 ? `${base}?page=${n}` : base), undefined, true));
 }
 
 export default { fetch: handler };
