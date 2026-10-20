@@ -81,6 +81,12 @@ check("public manifest is a plain home-screen app", site.start_url === "/" && si
 check("feed links to manifest and /add", (await (await req("/")).text()).includes('rel="manifest" href="/manifest.webmanifest"') && (await (await req("/")).text()).includes('href="/add"'));
 r = await req("/add");
 check("/add explains install", r.status === 200 && (await r.text()).includes("Add to Home screen") && (await req("/add").then((x) => x.text())).includes("appinstalled"));
+const robots = await (await req("/robots.txt")).text();
+check("robots.txt blocks AI crawlers, not people", robots.includes("User-agent: GPTBot\nDisallow: /") && robots.includes("User-agent: ClaudeBot") && robots.includes("User-agent: *\nDisallow: /admin/") && !/User-agent: \*\nDisallow: \/\n/.test(robots));
+check("named AI crawler gets 403", (await req("/", { headers: { "user-agent": "Mozilla/5.0 (compatible; GPTBot/1.2)" } })).status === 403 && (await req(`/p/${made[0]}`, { headers: { "user-agent": "ClaudeBot/1.0" } })).status === 403);
+r = await req("/", { headers: { "user-agent": "Mozilla/5.0 (Linux; Android 14) Chrome/130" } });
+check("normal browser still gets the feed + noai headers", r.status === 200 && r.headers.get("x-robots-tag") === "noai, noimageai" && (await r.text()).includes('name="robots" content="noai, noimageai"'));
+check("search engines are not blocked", (await req("/", { headers: { "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" } })).status === 200);
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

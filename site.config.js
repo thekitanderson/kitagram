@@ -2,8 +2,11 @@
 export default {
   name: "Kitagram",
   tagline: "",
-  // Canonical domain: one value. Not used yet in this slice.
+  // Canonical domain: one value. Used for share links and previews.
   domain: "kitagram.app",
+
+  // AI training/scraping. false = refuse known AI crawlers (robots.txt, headers, and a 403 for ones that identify themselves). true = allow.
+  aiScraping: false,
 
   // Logo slot: drop a file in /public and set the path. null = text wordmark.
   logo: null,

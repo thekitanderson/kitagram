@@ -24,6 +24,7 @@ function route(url) {
   if ((m = url.pathname.match(/^\/p\/([^/]+)$/))) { url.searchParams.set("id", m[1]); return "p"; }
   if (url.pathname === "/theme.css") return "theme";
   if (url.pathname === "/add") return "add";
+  if (url.pathname === "/robots.txt") return "robots";
   if (url.pathname === "/manifest.webmanifest") { url.searchParams.set("site", "1"); return "manifest"; }
   if (url.pathname === "/admin/manifest.webmanifest") return "manifest";
   if ((m = url.pathname.match(/^\/api\/(\w+)$/))) return m[1];

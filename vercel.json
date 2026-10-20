@@ -3,6 +3,7 @@
   "rewrites": [
     { "source": "/", "destination": "/api/feed" },
     { "source": "/p/:id", "destination": "/api/p?id=:id" },
+    { "source": "/robots.txt", "destination": "/api/robots" },
     { "source": "/add", "destination": "/api/add" },
     { "source": "/manifest.webmanifest", "destination": "/api/manifest?site=1" },
     { "source": "/theme.css", "destination": "/api/theme" },
