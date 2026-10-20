@@ -2,6 +2,10 @@
 export default {
   name: "Kitagram",
   tagline: "FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.",
+  // Search-result description for the front page (the tagline is a slogan; this says what the site is).
+  description: "Photos, writing, quotes, links, audio and video by Kit Anderson. No likes. No follows. Just the work.",
+  // Who made it. Goes into page titles and structured data so search engines tie the posts to the name. sameAs = your other official profiles.
+  author: { name: "Kit Anderson", sameAs: ["https://www.imdb.com/name/nm3556873/"] },
   // Canonical domain: one value. Used for share links and previews.
   domain: "www.kitagram.app",
 

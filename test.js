@@ -70,7 +70,7 @@ for (const [name, type, data] of [
 
 // --- public pages ---
 t = await (await req("/")).text();
-check("feed shows all six, no script tags", count(t, /<article/g) === 6 && !t.includes("<script"));
+check("feed shows all six, no script tags", count(t, /<article/g) === 6 && !t.replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").includes("<script"));
 check("feed is newest first", [...t.matchAll(/href="\/p\/(\d+)"/g)].map((m) => m[1]).join() === [...made].reverse().join());
 check("post text is escaped", t.includes("&lt;script&gt;") && !t.includes("<script>alert"));
 for (const tag of ["<blockquote", "link-card", "<audio", "<video", 'class="square"', "<h2"]) check(`renders ${tag}`, t.includes(tag));
@@ -90,7 +90,7 @@ check("permalink has preview tags", t.includes('property="og:title"') && t.inclu
   check("preview tags escape quotes", !mk("text", { body: 'a "quoted" <b>' }).includes('<b>'));
 }
 check("permalink has text + copy share", t.includes('href="sms:?body=https%3A%2F%2Fwww.kitagram.app%2Fp%2F') && t.includes('id="copy"'));
-check("feed stays script-free", !(await (await req("/")).text()).includes("<script"));
+check("feed stays script-free", !(await (await req("/")).text()).replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").includes("<script"));
 const site = await (await req("/manifest.webmanifest")).json();
 check("public manifest is a plain home-screen app", site.start_url === "/" && site.scope === "/" && !site.share_target);
 check("feed links to manifest and /add", (await (await req("/")).text()).includes('rel="manifest" href="/manifest.webmanifest"') && (await (await req("/")).text()).includes('href="/add"'));
@@ -116,6 +116,20 @@ check("robots.txt hides /t/", (await (await req("/robots.txt")).text()).includes
 const { execFileSync } = await import("node:child_process");
 const off = execFileSync("node", ["-e", 'import("./lib/render.js").then(m=>console.log(m.post({id:"1",type:"text",date:"2026-01-01T00:00:00Z",data:{body:"x"}})))'], { env: { ...process.env, SMS_NUMBER: "" } }).toString();
 check("no number set = no Text Kit link", !off.includes("text-me"));
+{
+  const sm = await (await req("/sitemap.xml")).text();
+  check("sitemap lists the front page and every post", sm.includes("<loc>https://www.kitagram.app/</loc>") && made.every((id) => sm.includes(`<loc>https://www.kitagram.app/p/${id}</loc>`)) && sm.includes("<lastmod>"));
+  check("sitemap lists photos for image search", sm.includes("<image:image>"));
+  check("robots.txt points to the sitemap", (await (await req("/robots.txt")).text()).includes("Sitemap: https://www.kitagram.app/sitemap.xml"));
+  const front = await (await req("/")).text();
+  const perma = await (await req(`/p/${made[0]}`)).text();
+  const ld = (h) => JSON.parse(h.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
+  check("front page: title has the author, description says what the site is, WebSite data", front.includes("<title>Kitagram · Kit Anderson</title>") && front.includes('name="description" content="Photos, writing') && ld(front)["@type"] === "WebSite" && ld(front).author.name === "Kit Anderson");
+  const b = ld(perma);
+  check("permalink: own description (not the slogan), BlogPosting data with author + date", !perma.includes('name="description" content="Photos, writing') && b["@type"] === "BlogPosting" && b.author.name === "Kit Anderson" && /^\d{4}-/.test(b.datePublished) && b.url === `https://www.kitagram.app/p/${made[0]}`);
+  check("photo alt falls back to the caption", /<img class="square"[^>]*alt="[^"]+"/.test(front));
+  check("404 pages are noindex", (await (await req("/p/99999")).text()).includes('name="robots" content="noindex"'));
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();
