@@ -125,6 +125,9 @@ main,
 }
 
 .meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding-top: 0;
   padding-bottom: 0;
   font-size: 13px;
@@ -269,6 +272,16 @@ main,
   cursor: pointer;
 }
 
-.text-me {
-  margin-left: 12px;
+.meta .text-me {
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.meta .text-me:hover {
+  text-decoration: none;
+  border-color: var(--muted);
 }
