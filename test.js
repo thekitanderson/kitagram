@@ -24,7 +24,7 @@ let t = await r.text();
 check("empty feed renders", r.status === 200 && count(t, /<article/g) === 0);
 check("header has logo for light and dark", t.includes('src="/logo-light.png"') && t.includes('srcset="/logo-dark.png"'));
 check("front page has site preview tags", t.includes('property="og:title" content="Kitagram"') && t.includes('property="og:description" content="FUCK THE ALGORITHM.') && t.includes('property="og:image" content="https://www.kitagram.app/og.png?v=6"') && t.includes('og:url" content="https://www.kitagram.app/"') && t.includes('name="twitter:card" content="summary_large_image"'));
-check("header shows name and subtitle", t.includes('class="wordmark">Kitagram<') && t.includes('lengthAdjust="spacingAndGlyphs">FUCK THE ALGORITHM.<'));
+check("header shows name and subtitle", t.includes('class="wordmark">Kitagram by Kit Anderson<') && t.includes('lengthAdjust="spacingAndGlyphs">FUCK THE ALGORITHM.<'));
 
 // --- auth ---
 r = await post(null, "text", { body: "x" });
