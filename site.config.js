@@ -5,6 +5,11 @@ export default {
   // Canonical domain: one value. Used for share links and previews.
   domain: "kitagram.app",
 
+  // "Text Kit" link on every post, instead of comments. Replies land in your own messages; the site stores nothing.
+  // Set the number here, or as SMS_NUMBER in Vercel (digits with country code, e.g. +15305550100). Empty = no link.
+  // The number is public to every visitor and every scraper. A dedicated number (Google Voice) is safer than your personal one.
+  textMe: { name: "Kit", number: process.env.SMS_NUMBER || "" },
+
   // AI training/scraping. false = refuse known AI crawlers (robots.txt, headers, and a 403 for ones that identify themselves). true = allow.
   aiScraping: false,
 

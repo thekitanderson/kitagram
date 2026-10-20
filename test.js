@@ -4,6 +4,7 @@ process.env.LOCAL_DB = "memory://";
 process.env.ADMIN_PASSWORD = "correct horse";
 process.env.SESSION_SECRET = "test-secret-0123456789";
 delete process.env.DATABASE_URL;
+process.env.SMS_NUMBER = "+1 (530) 555-0100";
 process.env.BLOB_READ_WRITE_TOKEN = "vercel_blob_rw_teststore_0123456789abcdef"; // fake: tokens are signed locally, no network
 
 const { start } = await import("./dev.js");
@@ -89,6 +90,10 @@ check("named AI crawler gets 403", (await req("/", { headers: { "user-agent": "M
 r = await req("/", { headers: { "user-agent": "Mozilla/5.0 (Linux; Android 14) Chrome/130" } });
 check("normal browser still gets the feed + noai headers", r.status === 200 && r.headers.get("x-robots-tag") === "noai, noimageai" && (await r.text()).includes('name="robots" content="noai, noimageai"'));
 check("search engines are not blocked", (await req("/", { headers: { "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" } })).status === 200);
+check("every post has a Text Kit link with the post URL prefilled", count(t, /class="text-me" href="sms:\+15305550100\?body=Re%3A%20https%3A%2F%2Fkitagram\.app%2Fp%2F\d+%0A">Text Kit</g) === count(t, /<article/g) && count(t, /<article/g) > 0);
+const { execFileSync } = await import("node:child_process");
+const off = execFileSync("node", ["-e", 'import("./lib/render.js").then(m=>console.log(m.post({id:"1",type:"text",date:"2026-01-01T00:00:00Z",data:{body:"x"}})))'], { env: { ...process.env, SMS_NUMBER: "" } }).toString();
+check("no number set = no Text Kit link", !off.includes("text-me"));
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();
