@@ -80,7 +80,7 @@ const site = await (await req("/manifest.webmanifest")).json();
 check("public manifest is a plain home-screen app", site.start_url === "/" && site.scope === "/" && !site.share_target);
 check("feed links to manifest and /add", (await (await req("/")).text()).includes('rel="manifest" href="/manifest.webmanifest"') && (await (await req("/")).text()).includes('href="/add"'));
 r = await req("/add");
-check("/add explains install", r.status === 200 && (await r.text()).includes("Add to Home screen"));
+check("/add explains install", r.status === 200 && (await r.text()).includes("Add to Home screen") && (await req("/add").then((x) => x.text())).includes("appinstalled"));
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

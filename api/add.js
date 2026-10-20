@@ -8,10 +8,13 @@ function handler() {
       `Add to Home Screen · ${config.name}`,
       `<div class="pad"><h2 class="text-title">Add ${esc(config.name)} to your home screen</h2>
 <p><button type="button" id="install" hidden>Add to Home Screen</button></p>
+<p id="done" role="status" hidden><strong>Added.</strong> ${esc(config.name)} is on your home screen.</p>
 <p><strong>Android (Chrome):</strong> tap the ⋮ menu, then <em>Add to Home screen</em>.</p>
 <p><strong>iPhone (Safari):</strong> tap Share, then <em>Add to Home Screen</em>.</p>
 <p class="end"><a href="/">← Back</a></p></div>
-<script>var e;addEventListener("beforeinstallprompt",function(v){v.preventDefault();e=v;var b=document.getElementById("install");b.hidden=false;b.onclick=function(){e.prompt()}})</script>`
+<script>var e,b=document.getElementById("install"),n=document.getElementById("done");function ok(){b.hidden=true;n.hidden=false}
+addEventListener("beforeinstallprompt",function(v){v.preventDefault();e=v;b.hidden=false;b.onclick=function(){e.prompt()}});
+addEventListener("appinstalled",ok);if(matchMedia("(display-mode: standalone)").matches)ok()</script>`
     )
   );
 }
