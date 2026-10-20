@@ -109,6 +109,30 @@ main,
   margin-bottom: 16px;
 }
 
+/* Feed: the whole post is a tap target for its own page (stretched date link); real controls stay on top. */
+.post.tap {
+  position: relative;
+}
+
+.post.tap .meta a[href^="/p/"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.post.tap a,
+.post.tap audio,
+.post.tap video,
+.post.tap iframe,
+.post.tap button {
+  position: relative;
+  z-index: 1;
+}
+
+.post.tap .meta a[href^="/p/"] {
+  position: static;
+}
+
 .pad {
   padding: 16px;
 }
@@ -289,7 +313,8 @@ main,
   cursor: pointer;
 }
 
-.meta .text-me {
+.meta .text-me,
+.meta .sh {
   padding: 8px 14px;
   border: 1px solid var(--line);
   color: var(--text);
@@ -298,7 +323,14 @@ main,
   text-decoration: none;
 }
 
-.meta .text-me:hover {
+.meta .sh {
+  font-family: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+.meta .text-me:hover,
+.meta .sh:hover {
   text-decoration: none;
   border-color: var(--muted);
 }

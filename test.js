@@ -70,7 +70,7 @@ for (const [name, type, data] of [
 
 // --- public pages ---
 t = await (await req("/")).text();
-check("feed shows all six, no script tags", count(t, /<article/g) === 6 && !t.replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").includes("<script"));
+check("feed shows all six, no script tags", count(t, /<article/g) === 6 && !t.replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").replace(/<script>if\(navigator\.share\).*?<\/script>/g, "").includes("<script"));
 check("feed is newest first", [...t.matchAll(/href="\/p\/(\d+)"/g)].map((m) => m[1]).join() === [...made].reverse().join());
 check("post text is escaped", t.includes("&lt;script&gt;") && !t.includes("<script>alert"));
 for (const tag of ["<blockquote", "link-card", "<audio", "<video", 'class="square"', "<h2"]) check(`renders ${tag}`, t.includes(tag));
@@ -89,8 +89,9 @@ check("permalink has preview tags", t.includes('property="og:title"') && t.inclu
   check("quote + link + audio previews", val(mk("quote", { text: "Hi", source: "Me" }), "og:title") === "“Hi”" && val(mk("link", { title: "T", url: "https://a.com/x" }), "og:description") === "a.com" && val(mk("audio", { title: "S", artist: "A", src: "/a.mp3" }), "og:description") === "A · audio");
   check("preview tags escape quotes", !mk("text", { body: 'a "quoted" <b>' }).includes('<b>'));
 }
-check("permalink has text + copy share", t.includes('href="sms:?body=https%3A%2F%2Fwww.kitagram.app%2Fp%2F') && t.includes('id="copy"'));
-check("feed stays script-free", !(await (await req("/")).text()).replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").includes("<script"));
+check("permalink has text + copy share", t.includes('href="sms:?body=https%3A%2F%2Fwww.kitagram.app%2Fp%2F') && t.includes('id="copy"') && t.includes('class="sh"') && t.includes("navigator.share"));
+check("feed posts are tappable, permalink is not", (await (await req("/")).text()).includes('class="post tap"') && !(await (await req(`/p/${made[0]}`)).text()).includes("post tap"));
+check("feed stays script-free", !(await (await req("/")).text()).replace(/<script type="application\/ld\+json">.*?<\/script>/g, "").replace(/<script>if\(navigator\.share\).*?<\/script>/g, "").includes("<script"));
 const site = await (await req("/manifest.webmanifest")).json();
 check("public manifest is a plain home-screen app", site.start_url === "/" && site.scope === "/" && !site.share_target);
 check("feed links to manifest and /add", (await (await req("/")).text()).includes('rel="manifest" href="/manifest.webmanifest"') && (await (await req("/")).text()).includes('href="/add"'));
