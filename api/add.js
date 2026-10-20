@@ -5,10 +5,10 @@ import config from "../site.config.js";
 function handler() {
   return html(
     page(
-      `Add to Home Screen · ${config.name}`,
-      `<div class="pad"><h2 class="text-title">Add ${esc(config.name)} to your home screen</h2>
-<p><button type="button" id="install" hidden>Add to Home Screen</button></p>
-<p id="done" role="status" hidden><strong>Added.</strong> ${esc(config.name)} is on your home screen.</p>
+      `Add ${config.name} App to Homescreen`,
+      `<div class="pad"><h2 class="text-title">Add ${esc(config.name)} App to Homescreen</h2>
+<p><button type="button" id="install" hidden>Add ${esc(config.name)} App to Homescreen</button></p>
+<p id="done" role="status" hidden><strong>Added.</strong> ${esc(config.name)} is on your homescreen.</p>
 <p><strong>Android (Chrome):</strong> tap the ⋮ menu, then <em>Add to Home screen</em>.</p>
 <p><strong>iPhone (Safari):</strong> tap Share, then <em>Add to Home Screen</em>.</p>
 <p class="end"><a href="/">← Back</a></p></div>
