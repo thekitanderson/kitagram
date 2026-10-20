@@ -1,8 +1,13 @@
 import config from "../site.config.js";
 
-// The composer's install manifest. share_target puts the app in Android's share menu.
-function handler() {
+// Two install manifests. Default: the composer (share_target puts it in Android's share menu).
+// ?site=1: the public site, for readers who want a home-screen shortcut.
+function handler(request) {
   const icon = (n) => ({ src: `/admin/icon-${n}.png`, sizes: `${n}x${n}`, type: "image/png", purpose: "any maskable" });
+  const base = { name: config.name, short_name: config.name, display: "standalone", background_color: config.theme.light.bg, theme_color: config.theme.light.bg, icons: [icon(192), icon(512)] };
+  if (new URL(request.url).searchParams.has("site")) {
+    return Response.json({ ...base, id: "/", start_url: "/", scope: "/" }, { headers: { "content-type": "application/manifest+json" } });
+  }
   return Response.json(
     {
       name: config.name,

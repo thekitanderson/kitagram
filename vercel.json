@@ -3,6 +3,8 @@
   "rewrites": [
     { "source": "/", "destination": "/api/feed" },
     { "source": "/p/:id", "destination": "/api/p?id=:id" },
+    { "source": "/add", "destination": "/api/add" },
+    { "source": "/manifest.webmanifest", "destination": "/api/manifest?site=1" },
     { "source": "/theme.css", "destination": "/api/theme" },
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/admin/manifest.webmanifest", "destination": "/api/manifest" }
