@@ -77,6 +77,17 @@ r = await req(`/p/${made[0]}`);
 t = await r.text();
 check("permalink works", r.status === 200 && t.includes("Hello") && t.includes("← Back"));
 check("permalink has preview tags", t.includes('property="og:title"') && t.includes(`og:url" content="https://www.kitagram.app/p/${made[0]}"`) && t.includes('rel="canonical"'));
+{
+  const { og } = await import("./lib/render.js");
+  const mk = (type, data) => og({ id: "9", type, date: "2026-10-20T19:00:00Z", data });
+  const val = (h, k) => h.match(new RegExp(`(?:property|name)="${k}" content="([^"]*)"`))?.[1];
+  const text = mk("text", { body: "A long thought about why the feed is dead. ".repeat(10) });
+  check("text post preview: image is the site card, title cut, description differs", val(text, "og:image") === "https://www.kitagram.app/og.png" && val(text, "og:title").length <= 70 && val(text, "og:title").endsWith("…") && val(text, "og:description") !== val(text, "og:title"));
+  const photo = mk("photo", { src: "https://x.test/a.jpg", caption: "Dropping in on friends." });
+  check("photo preview: its own picture, caption title, description not a repeat", val(photo, "og:image") === "https://x.test/a.jpg" && val(photo, "og:title") === "Dropping in on friends." && val(photo, "og:description") === "Kitagram · Oct 20, 2026" && val(photo, "twitter:card") === "summary_large_image");
+  check("quote + link + audio previews", val(mk("quote", { text: "Hi", source: "Me" }), "og:title") === "“Hi”" && val(mk("link", { title: "T", url: "https://a.com/x" }), "og:description") === "a.com" && val(mk("audio", { title: "S", artist: "A", src: "/a.mp3" }), "og:description") === "A · audio");
+  check("preview tags escape quotes", !mk("text", { body: 'a "quoted" <b>' }).includes('<b>'));
+}
 check("permalink has text + copy share", t.includes('href="sms:?body=https%3A%2F%2Fwww.kitagram.app%2Fp%2F') && t.includes('id="copy"'));
 check("feed stays script-free", !(await (await req("/")).text()).includes("<script"));
 const site = await (await req("/manifest.webmanifest")).json();

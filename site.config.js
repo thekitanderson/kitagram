@@ -10,6 +10,9 @@ export default {
   // The number is public to every visitor and every scraper. A dedicated number (Google Voice) is safer than your personal one.
   textMe: { name: "Kit", number: process.env.SMS_NUMBER || "" },
 
+  // Picture used in link previews for posts that have no picture of their own (text, quotes, links). 1200x630.
+  ogImage: "/og.png",
+
   // AI training/scraping. false = refuse known AI crawlers (robots.txt, headers, and a 403 for ones that identify themselves). true = allow.
   aiScraping: false,
 
