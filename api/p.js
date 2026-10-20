@@ -7,7 +7,7 @@ async function handler(request) {
   const no = aiBlocked(request);
   if (no) return no;
   const p = await getPost(new URL(request.url).searchParams.get("id"));
-  if (!p) return html(page(`Not found · ${config.name}`, `<p class="end">Nothing here. <a href="/">Go back.</a></p>`, '<meta name="robots" content="noindex">'), 404);
+  if (!p) return html(page(`Not found · ${config.name}`, `<p class="end">Nothing here. Taking you home. <a href="/">Go now.</a></p>`, '<meta name="robots" content="noindex"><meta http-equiv="refresh" content="3;url=/">'), 404);
   const v = preview(p);
   return html(page(`${v.title} · ${config.name}`, post(p) + share(p) + `<p class="end"><a href="/">← Back</a></p>`, og(p), v.desc));
 }

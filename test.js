@@ -158,6 +158,11 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   const mine = "https://abc123.public.blob.vercel-storage.com/kg/a.jpg";
   check("delete only targets our own Blob files", JSON.stringify(blobUrls({ src: mine, poster: mine.replace("a.jpg", "p.jpg"), cover: "https://evil.com/x.jpg" })) === JSON.stringify([mine, mine.replace("a.jpg", "p.jpg")]) && blobUrls({ src: "/seed/x.jpg" }).length === 0 && blobUrls({ src: "https://public.blob.vercel-storage.com.evil.com/x" }).length === 0 && blobUrls({ embed: "https://youtu.be/x" }).length === 0);
 }
+{
+  const nf = await req("/p/99999");
+  check("missing post: 404 status, noindex, sends you home to the grid", nf.status === 404 && (await nf.text()).includes('http-equiv="refresh" content="3;url=/"'));
+  check("404.html sends you home too", (await import("node:fs")).readFileSync("public/404.html", "utf8").includes('http-equiv="refresh" content="3;url=/"'));
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();
