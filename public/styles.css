@@ -46,12 +46,14 @@ main,
   text-decoration: none;
 }
 
+/* Subtitle: one line, always 90% of the header width, left-aligned with the title. The SVG scales the text to fit. */
 .tagline {
-  margin: 2px 0 0;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-wrap: balance;
-  color: var(--muted);
+  display: block;
+  width: 90%;
+  height: auto;
+  margin-top: 4px;
+  fill: var(--muted);
+  font-family: inherit;
 }
 
 .wordmark {
