@@ -186,6 +186,14 @@ main,
   line-height: 1.3;
 }
 
+.quote blockquote::before {
+  content: "\201C";
+}
+
+.quote blockquote::after {
+  content: "\201D";
+}
+
 .quote figcaption {
   margin-top: 12px;
   color: var(--muted);
