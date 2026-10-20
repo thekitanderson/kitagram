@@ -3,7 +3,7 @@ export default {
   name: "Kitagram",
   tagline: "FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.",
   // Canonical domain: one value. Used for share links and previews.
-  domain: "kitagram.app",
+  domain: "www.kitagram.app",
 
   // "Text Kit" link on every post, instead of comments. Replies land in your own messages; the site stores nothing.
   // Set the number here, or as SMS_NUMBER in Vercel (digits with country code, e.g. +15305550100). Empty = no link.
