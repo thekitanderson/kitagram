@@ -39,7 +39,19 @@ main,
 }
 
 .site-header {
+  position: relative;
   padding: 16px;
+}
+
+.logo {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.logo img {
+  height: 40px;
+  width: auto;
 }
 
 .site-header a {

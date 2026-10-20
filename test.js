@@ -21,6 +21,7 @@ const count = (s, re) => (s.match(re) || []).length;
 let r = await req("/");
 let t = await r.text();
 check("empty feed renders", r.status === 200 && count(t, /<article/g) === 0);
+check("header has logo for light and dark", t.includes('src="/logo-light.png"') && t.includes('srcset="/logo-dark.png"'));
 check("header shows name and subtitle", t.includes('class="wordmark">Kitagram<') && t.includes('lengthAdjust="spacingAndGlyphs">FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.<'));
 
 // --- auth ---

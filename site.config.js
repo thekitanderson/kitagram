@@ -11,9 +11,9 @@ export default {
   // App icon background (splash screen). Icons live in public/admin/icon-192.png and icon-512.png.
   iconBg: "#000000",
 
-  // Logo: files in /public. logo = for light backgrounds; logoDark (optional) = for dark mode. null = text wordmark.
-  logo: null,
-  logoDark: null,
+  // Logo (top right of the header): files in /public. logo = for light backgrounds; logoDark (optional) = for dark mode. null = no logo.
+  logo: "/logo-light.png",
+  logoDark: "/logo-dark.png",
 
   theme: {
     // Light is the default. Dark applies automatically when the visitor's device is set to dark.
