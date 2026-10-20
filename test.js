@@ -90,7 +90,17 @@ check("named AI crawler gets 403", (await req("/", { headers: { "user-agent": "M
 r = await req("/", { headers: { "user-agent": "Mozilla/5.0 (Linux; Android 14) Chrome/130" } });
 check("normal browser still gets the feed + noai headers", r.status === 200 && r.headers.get("x-robots-tag") === "noai, noimageai" && (await r.text()).includes('name="robots" content="noai, noimageai"'));
 check("search engines are not blocked", (await req("/", { headers: { "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" } })).status === 200);
-check("every post has a Text Kit link with the post URL prefilled", count(t, /class="text-me" href="sms:\+15305550100\?body=Re%3A%20https%3A%2F%2Fkitagram\.app%2Fp%2F\d+%0A">Text Kit</g) === count(t, /<article/g) && count(t, /<article/g) > 0);
+check("every post has a Text Kit link, and the number is nowhere in the HTML", count(t, /class="text-me" href="\/t\/\d+"/g) === count(t, /<article/g) && count(t, /<article/g) > 0 && !t.includes("5305550100") && !(await (await req("/add")).text()).includes("5305550100"));
+// Node's fetch forces Sec-Fetch-Mode: cors, so send these over raw HTTP to look like a browser tap.
+const { request: httpRequest } = await import("node:http");
+const raw = (path, headers) => new Promise((ok, no) => { const q = httpRequest(base + path, { headers }, (res) => { let b = ""; res.on("data", (c) => (b += c)); res.on("end", () => ok({ status: res.statusCode, headers: res.headers, text: b })); }); q.on("error", no); q.end(); });
+const tap = { "sec-fetch-site": "same-origin", "sec-fetch-mode": "navigate", "sec-fetch-user": "?1", "sec-fetch-dest": "document" };
+r = await raw(`/t/${made[0]}`, tap);
+check("a real tap gets the sms: redirect with the post link", r.status === 302 && r.headers.location === `sms:+15305550100?body=Re%3A%20https%3A%2F%2Fkitagram.app%2Fp%2F${made[0]}%0A`);
+r = await req(`/t/${made[0]}`);
+check("plain HTTP client gets 403 and no number", r.status === 403 && !(await r.text()).includes("5305550100") && !(r.headers.get("location") || ""));
+check("forged cross-site / non-user requests get 403", (await raw(`/t/${made[0]}`, { ...tap, "sec-fetch-site": "cross-site" })).status === 403 && (await raw(`/t/${made[0]}`, { ...tap, "sec-fetch-user": "?0" })).status === 403);
+check("robots.txt hides /t/", (await (await req("/robots.txt")).text()).includes("Disallow: /t/"));
 const { execFileSync } = await import("node:child_process");
 const off = execFileSync("node", ["-e", 'import("./lib/render.js").then(m=>console.log(m.post({id:"1",type:"text",date:"2026-01-01T00:00:00Z",data:{body:"x"}})))'], { env: { ...process.env, SMS_NUMBER: "" } }).toString();
 check("no number set = no Text Kit link", !off.includes("text-me"));
