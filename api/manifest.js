@@ -4,7 +4,7 @@ import config from "../site.config.js";
 // ?site=1: the public site, for readers who want a home-screen shortcut.
 function handler(request) {
   const icon = (n) => ({ src: `/admin/icon-${n}.png`, sizes: `${n}x${n}`, type: "image/png", purpose: "any maskable" });
-  const base = { name: config.name, short_name: config.name, display: "standalone", background_color: config.theme.light.bg, theme_color: config.theme.light.bg, icons: [icon(192), icon(512)] };
+  const base = { name: config.name, short_name: config.name, display: "standalone", background_color: config.iconBg, theme_color: config.theme.light.bg, icons: [icon(192), icon(512)] };
   if (new URL(request.url).searchParams.has("site")) {
     return Response.json({ ...base, id: "/", start_url: "/", scope: "/" }, { headers: { "content-type": "application/manifest+json" } });
   }
@@ -15,7 +15,7 @@ function handler(request) {
       start_url: "/admin/",
       scope: "/admin/",
       display: "standalone",
-      background_color: config.theme.light.bg,
+      background_color: config.iconBg,
       theme_color: config.theme.light.bg,
       icons: [icon(192), icon(512)],
       share_target: {
