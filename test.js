@@ -130,6 +130,23 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   check("photo alt falls back to the caption", /<img class="square"[^>]*alt="[^"]+"/.test(front));
   check("404 pages are noindex", (await (await req("/p/99999")).text()).includes('name="robots" content="noindex"'));
 }
+{
+  const { embedOf } = await import("./lib/embed.js");
+  check("embed: YouTube + Vimeo links map to privacy players, others rejected",
+    embedOf("https://youtu.be/dQw4w9WgXcQ")?.src === "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" &&
+    embedOf("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=5")?.poster === "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" &&
+    embedOf("https://youtube.com/shorts/abcDEF12345")?.src.endsWith("/abcDEF12345") &&
+    embedOf("https://vimeo.com/123456789")?.src === "https://player.vimeo.com/video/123456789?dnt=1" &&
+    !embedOf("http://youtu.be/dQw4w9WgXcQ") && !embedOf("https://evil.com/watch?v=dQw4w9WgXcQ") && !embedOf("https://youtube.com.evil.com/watch?v=dQw4w9WgXcQ") && !embedOf("javascript:alert(1)"));
+  const post = (data) => req("/api/post", { method: "POST", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ type: "video", data }) });
+  const ok = await post({ embed: "https://youtu.be/dQw4w9WgXcQ", caption: "Embed test" });
+  const okj = await ok.json();
+  check("video post accepts a YouTube link", ok.status === 200 || ok.status === 201);
+  check("video post rejects empty, non-YouTube links", (await post({ caption: "x" })).status === 400 && (await post({ embed: "https://example.com/v" })).status === 400);
+  const ep = await (await req(`/p/${okj.id ?? okj.url?.split("/").pop()}`)).text();
+  check("embed renders as a nocookie iframe and previews with the YouTube still", ep.includes('<iframe class="embed" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"') && ep.includes('og:image" content="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"'));
+  await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: okj.id ?? okj.url?.split("/").pop() }) });
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

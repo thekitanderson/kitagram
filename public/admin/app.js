@@ -1,5 +1,5 @@
 import { upload } from "/admin/blob-client.js";
-import { shrink } from "/admin/photo.js";
+import { shrink, probeVideo } from "/admin/photo.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -10,7 +10,7 @@ const FIELDS = {
   quote: [["text", "Quote", { area: 1, req: 1 }], ["source", "Source"]],
   link: [["url", "Link", { type: "url", req: 1 }], ["title", "Title (defaults to the site name)"], ["note", "Note", { area: 1 }]],
   audio: [["file", "Audio", { file: "audio/*", req: 1 }], ["filename", "File name (optional)"], ["title", "Title (defaults to the file name)"], ["artist", "Artist"]],
-  video: [["file", "Video", { file: "video/*", req: 1 }], ["filename", "File name (optional)"], ["caption", "Caption", { area: 1 }]],
+  video: [["file", "Video file"], ["embed", "…or paste a YouTube / Vimeo link", { type: "url" }], ["filename", "File name (optional)"], ["caption", "Caption", { area: 1 }]],
 };
 
 let type = "photo";
@@ -56,7 +56,7 @@ function render(t) {
 $("compose").addEventListener("submit", async (e) => {
   e.preventDefault();
   const v = Object.fromEntries(new FormData(e.currentTarget));
-  const file = v.file;
+  const file = v.file && v.file.size ? v.file : null;
   const named = String(v.filename || "").trim().toLowerCase().replace(/\.[a-z0-9]+$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   delete v.file;
   delete v.filename;
@@ -64,6 +64,14 @@ $("compose").addEventListener("submit", async (e) => {
   say("Posting…");
   try {
     if (type === "link" && !v.title) v.title = new URL(v.url).hostname;
+    if (type === "video" && !file && !v.embed) throw new Error("Add a video file or a YouTube / Vimeo link.");
+    if (type === "video" && file && v.embed) throw new Error("Pick one: a file or a link.");
+    if (!v.embed) delete v.embed;
+    let posterFile = null;
+    if (type === "video" && file) {
+      say("Checking video…");
+      posterFile = await probeVideo(file); // throws if this browser can't read the format
+    }
     if (file) {
       const f = type === "photo" ? await shrink(file) : file;
       if (type === "audio" && !v.title) v.title = f.name.replace(/\.[^.]+$/, "");
@@ -76,6 +84,10 @@ $("compose").addEventListener("submit", async (e) => {
         onUploadProgress: ({ percentage }) => say(`Uploading ${Math.round(percentage)}%`),
       });
       v.src = blob.url;
+      if (posterFile) {
+        const pb = await upload(`kg/${(named || f.name.replace(/\.[^.]+$/, "")).replace(/[^\w-]+/g, "-")}-poster.jpg`, posterFile, { access: "public", handleUploadUrl: "/api/upload", clientPayload: "" });
+        v.poster = pb.url;
+      }
     }
     const r = await fetch("/api/post", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type, data: v }) });
     if (r.status === 401) return show("login");

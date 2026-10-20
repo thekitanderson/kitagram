@@ -1,6 +1,7 @@
 import { addPost, deletePost } from "../lib/db.js";
 import { isAuthed } from "../lib/auth.js";
 import { json, readJson } from "../lib/http.js";
+import { embedOf } from "../lib/embed.js";
 
 // Field rules per type: [kind, max length, required]
 //   s = text, m = media (https URL or same-site path), h = http(s) link
@@ -10,7 +11,7 @@ const SPEC = {
   quote: { text: ["s", 5000, 1], source: ["s", 300] },
   link: { url: ["h", 2000, 1], title: ["s", 300, 1], note: ["s", 2000] },
   audio: { src: ["m", 2000, 1], title: ["s", 300, 1], artist: ["s", 300] },
-  video: { src: ["m", 2000, 1], caption: ["s", 2000] },
+  video: { src: ["m", 2000], poster: ["m", 2000], embed: ["h", 2000], caption: ["s", 2000] },
 };
 
 const isHttp = (v) => { try { return /^https?:$/.test(new URL(v).protocol); } catch { return false; } };
@@ -27,6 +28,7 @@ function clean(type, d) {
     if (kind === "h" && !isHttp(v)) return null;
     out[k] = v;
   }
+  if (type === "video" && !out.src && !(out.embed && embedOf(out.embed))) return null; // needs a file or a YouTube/Vimeo link
   return out;
 }
 

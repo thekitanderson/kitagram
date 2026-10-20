@@ -113,6 +113,14 @@ main,
   padding: 16px;
 }
 
+.embed {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  background: #000;
+}
+
 .square {
   width: 100%;
   aspect-ratio: 1 / 1;
