@@ -25,6 +25,7 @@ function route(url) {
   if (url.pathname === "/theme.css") return "theme";
   if ((m = url.pathname.match(/^\/t\/(\d+)$/))) { url.searchParams.set("id", m[1]); return "t"; }
   if (url.pathname === "/sitemap.xml") { url.searchParams.set("sitemap", "1"); return "robots"; }
+  if (url.pathname === "/grid") { url.searchParams.set("view", "grid"); return "feed"; }
   if (url.pathname === "/add") return "add";
   if (url.pathname === "/robots.txt") return "robots";
   if (url.pathname === "/manifest.webmanifest") { url.searchParams.set("site", "1"); return "manifest"; }

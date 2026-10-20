@@ -148,6 +148,11 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   check("embed renders as a nocookie iframe and previews with the YouTube still", ep.includes('<iframe class="embed" src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"') && ep.includes('og:image" content="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"'));
   await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: okj.id ?? okj.url?.split("/").pop() }) });
 }
+{
+  const g = await (await req("/grid")).text();
+  check("grid: tiles link to posts, photos fill squares, toggle present", count(g, /class="tile/g) >= 6 && g.includes('class="grid"') && g.includes('<nav class="views"') && g.includes('href="/p/') && /class="tile"[^>]*><img/.test(g) && !g.includes("post tap"));
+  check("feed has the toggle too", (await (await req("/")).text()).includes('<a href="/grid">Grid</a>'));
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();
