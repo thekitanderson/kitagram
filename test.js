@@ -98,10 +98,10 @@ check("feed links to manifest and /add", (await (await req("/feed")).text()).inc
 r = await req("/add");
 check("/add explains install", r.status === 200 && (await r.text()).includes("Add to Home screen") && (await req("/add").then((x) => x.text())).includes("appinstalled"));
 const robots = await (await req("/robots.txt")).text();
-check("robots.txt blocks AI crawlers, not people", robots.includes("User-agent: GPTBot\nDisallow: /") && robots.includes("User-agent: ClaudeBot") && robots.includes("User-agent: *\nDisallow: /admin/") && !/User-agent: \*\nDisallow: \/\n/.test(robots));
-check("named AI crawler gets 403", (await req("/", { headers: { "user-agent": "Mozilla/5.0 (compatible; GPTBot/1.2)" } })).status === 403 && (await req(`/p/${made[0]}`, { headers: { "user-agent": "ClaudeBot/1.0" } })).status === 403);
+check("robots.txt: no AI-bot blocks, private paths still closed, sitemap listed", !robots.includes("GPTBot") && !robots.includes("ClaudeBot") && !robots.includes("Google-Extended") && robots.includes("User-agent: *\nDisallow: /admin/") && !/User-agent: \*\nDisallow: \/\n/.test(robots) && robots.includes("Sitemap:"));
+check("AI crawlers are served normally", (await req("/", { headers: { "user-agent": "Mozilla/5.0 (compatible; GPTBot/1.2)" } })).status === 200 && (await req(`/p/${made[0]}`, { headers: { "user-agent": "ClaudeBot/1.0" } })).status === 200);
 r = await req("/", { headers: { "user-agent": "Mozilla/5.0 (Linux; Android 14) Chrome/130" } });
-check("normal browser still gets the feed + noai headers", r.status === 200 && r.headers.get("x-robots-tag") === "noai, noimageai" && (await r.text()).includes('name="robots" content="noai, noimageai"'));
+check("pages carry no noai headers or meta", r.status === 200 && !r.headers.get("x-robots-tag") && !(await r.text()).includes("noai"));
 check("search engines are not blocked", (await req("/", { headers: { "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" } })).status === 200);
 check("every post has a Text Kit link, and the number is nowhere in the HTML", count(t, /class="text-me" href="\/t\/\d+"/g) === count(t, /<article/g) && count(t, /<article/g) > 0 && !t.includes("5305550100") && !(await (await req("/add")).text()).includes("5305550100"));
 // Node's fetch forces Sec-Fetch-Mode: cors, so send these over raw HTTP to look like a browser tap.

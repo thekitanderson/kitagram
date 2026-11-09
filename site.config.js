@@ -20,7 +20,7 @@ export default {
   ogImage: "/og.png?v=6",
 
   // AI training/scraping. false = refuse known AI crawlers (robots.txt, headers, and a 403 for ones that identify themselves). true = allow.
-  aiScraping: false,
+  aiScraping: true,
 
   // App icon background (splash screen). Icons live in public/admin/icon-192.png and icon-512.png.
   iconBg: "#000000",
