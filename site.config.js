@@ -3,7 +3,7 @@ export default {
   name: "Kitagram",
   tagline: "FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. JUST MY SHIT.",
   // The line under the name in the page header.
-  subtitle: "Adventures of the World's Greatest Stuntman",
+  subtitle: "WORLD'S GREATEST STUNTMAN",
   // Credited as the photographer of every photo post (image structured data only; not shown on the page).
   photographer: "Jude Anonymous",
   // Search-result description for the front page (the tagline is a slogan; this says what the site is).
