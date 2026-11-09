@@ -125,7 +125,7 @@ check("no number set = no Text Kit link", !off.includes("text-me"));
   const front = await (await req("/")).text();
   const perma = await (await req(`/p/${made[0]}`)).text();
   const ld = (h) => JSON.parse(h.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
-  check("front page: title has the author, description says what the site is, WebSite data", front.includes("<title>Kitagram · Kit Anderson</title>") && front.includes('name="description" content="Kitagram by Kit Anderson. FUCK') && ld(front)["@type"] === "WebSite" && ld(front).author.name === "Kit Anderson");
+  check("front page: title has name + tagline + site, description says what the site is, WebSite data", /<title>Kit Anderson · World('|&#39;)s Greatest Stuntman · Kitagram<\/title>/.test(front) && front.includes('name="description" content="Kitagram by Kit Anderson, the world') && ld(front)["@type"] === "WebSite" && ld(front).author.name === "Kit Anderson");
   const b = ld(perma);
   check("permalink: own description (not the slogan), BlogPosting data with author + date", !perma.includes('name="description" content="Kitagram by Kit Anderson. FUCK') && b["@type"] === "BlogPosting" && b.author.name === "Kit Anderson" && /^\d{4}-/.test(b.datePublished) && b.url === `https://www.kitagram.app/p/${made[0]}`);
   check("photo alt falls back to the caption", /<img class="square"[^>]*alt="[^"]+"/.test(await (await req("/feed")).text()));
@@ -192,6 +192,8 @@ check("front page has exactly one h1 (the wordmark)", count(await (await req("/"
   check("photo structured data credits Jude Anonymous, never Kit as photographer", img.creator.name === "Jude Anonymous" && img.creditText === "Jude Anonymous" && !html.includes("photo by"));
   await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: ph.id }) });
 }
+check("photo posts require a caption", (await post(cookie, "photo", { src: "/seed/a.jpg" })).status === 400);
+check("feed and grid have different titles", (await (await req("/feed")).text()).includes("<title>Feed · Kitagram</title>"));
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();

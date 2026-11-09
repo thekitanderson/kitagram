@@ -8,7 +8,7 @@ import { embedOf } from "../lib/embed.js";
 //   s = text, m = media (https URL or same-site path), h = http(s) link
 const SPEC = {
   text: { title: ["s", 200], body: ["s", 20000, 1] },
-  photo: { src: ["m", 2000, 1], alt: ["s", 500], caption: ["s", 2000] },
+  photo: { src: ["m", 2000, 1], alt: ["s", 500], caption: ["s", 2000, 1] },
   quote: { text: ["s", 5000, 1], source: ["s", 300] },
   link: { url: ["h", 2000, 1], title: ["s", 300, 1], note: ["s", 2000] },
   audio: { src: ["m", 2000, 1], title: ["s", 300, 1], artist: ["s", 300] },

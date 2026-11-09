@@ -6,8 +6,10 @@ export default {
   subtitle: "WORLD'S GREATEST STUNTMAN",
   // Credited as the photographer of every photo post (image structured data only; not shown on the page).
   photographer: "Jude Anonymous",
+  // Front-page title in Google results (home pages may carry more than the site name).
+  title: "Kit Anderson · World's Greatest Stuntman · Kitagram",
   // Search-result description for the front page (the tagline is a slogan; this says what the site is).
-  description: "Kitagram by Kit Anderson. FUCK THE ALGORITHM. NO LIKES. NO FOLLOWS. NO SPONSORS. NO ADS. KITAGRAM IS JUST MY SHIT AND THAT'S IT.",
+  description: "Kitagram by Kit Anderson, the world's greatest stuntman. Photos, stunts and more. No likes. No follows. No sponsors. No ads. Just my shit and that's it.",
   // Who made it. Goes into page titles and structured data so search engines tie the posts to the name. sameAs = your other official profiles.
   author: { name: "Kit Anderson", sameAs: ["https://www.imdb.com/name/nm3556873/"] },
   // Canonical domain: one value. Used for share links and previews.

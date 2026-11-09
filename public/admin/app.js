@@ -6,7 +6,7 @@ const $ = (id) => document.getElementById(id);
 // [field name, label, options]  req = required, area = textarea, file = accepted types
 const FIELDS = {
   text: [["title", "Title (optional)"], ["body", "Write something", { area: 1, req: 1 }]],
-  photo: [["file", "Photo", { file: "image/*", req: 1 }], ["filename", "File name (e.g. kit-anderson-riding-tiger)"], ["caption", "Caption", { area: 1 }], ["alt", "Alt text (for screen readers)"]],
+  photo: [["file", "Photo", { file: "image/*", req: 1 }], ["filename", "File name (e.g. kit-anderson-riding-tiger)"], ["caption", "Caption (required: it becomes the page title)", { area: 1, req: 1 }], ["alt", "Alt text (for screen readers)"]],
   quote: [["text", "Quote", { area: 1, req: 1 }], ["source", "Source"]],
   link: [["url", "Link", { type: "url", req: 1 }], ["title", "Title (defaults to the site name)"], ["note", "Note", { area: 1 }]],
   audio: [["file", "Audio", { file: "audio/*", req: 1 }], ["filename", "File name (optional)"], ["title", "Title (defaults to the file name)"], ["artist", "Artist"]],
