@@ -185,6 +185,13 @@ check("front page has exactly one h1 (the wordmark)", count(await (await req("/"
   check("permalink: title/caption is the one h1; none when there is no title", (await h1s(withTitle.id)) === 1 && (await h1s(photoCap.id)) === 1 && (await h1s(noTitle.id)) === 0);
   for (const x of [withTitle, noTitle, photoCap]) await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: x.id }) });
 }
+{
+  const ph = await (await post(cookie, "photo", { src: "/seed/a.jpg", caption: "Credit test" })).json();
+  const html = await (await req(`/p/${ph.id}`)).text();
+  const img = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]).image;
+  check("photo structured data credits Jude Anonymous, never Kit as photographer", img.creator.name === "Jude Anonymous" && img.creditText === "Jude Anonymous" && !html.includes("photo by"));
+  await req("/api/post", { method: "DELETE", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ id: ph.id }) });
+}
 check("missing permalink is 404", (await req("/p/99999")).status === 404 && (await req("/p/abc")).status === 404);
 check("theme css served", (await (await req("/theme.css")).text()).includes("--bg:"));
 const manifest = await (await req("/admin/manifest.webmanifest")).json();
